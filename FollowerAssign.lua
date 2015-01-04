@@ -85,6 +85,7 @@ end
 local function assignFollowers(assign)
 	local buildingsWithSlot = buildingsWithFollowerSlot()
 	
+	print('=== Starting to Assign Followers === ')
 	local delay = 0
 	for i,building in ipairs(buildingsWithSlot) do
 		if assign == true then
@@ -95,6 +96,11 @@ local function assignFollowers(assign)
 			delay = delay + 0.5
 		end
 	end
+
+	C_Timer.After(delay, function()
+		print('=== All done! === ')
+	end)
+	
 end
 
 local function createToggleButton()
