@@ -92,6 +92,7 @@ end
 -- Main Functions --
 
 local function assignFollowers(assign)
+	FollowerAssignCheck = assign
 	local buildingsWithSlot = buildingsWithFollowerSlot()
 	
 	print('=== Starting to Assign Followers === ')
@@ -114,6 +115,7 @@ end
 
 local function createToggleButton()
 	local ToggleFrame = CreateFrame("CheckButton", nil, GarrisonBuildingFrame, "InterfaceOptionsCheckButtonTemplate")
+	ToggleFrame:SetChecked(FollowerAssignCheck)
 	ToggleFrame:SetSize(24, 24)
 	ToggleFrame:SetHitRectInsets(0,0,0,0)
 	ToggleFrame:SetPoint("LEFT", GarrisonBuildingFrame.BuildingList.MaterialFrame, 10, 30)

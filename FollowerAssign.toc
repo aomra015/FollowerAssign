@@ -3,5 +3,6 @@
 ## Notes: Quickly assign followers to buildings before picking up work orders.
 ## Version: 0.0.1
 ## Author: koikoi
+## SavedVariablesPerCharacter: FollowerAssignCheck
 
 FollowerAssign.lua
