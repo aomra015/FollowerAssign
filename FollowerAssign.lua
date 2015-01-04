@@ -52,7 +52,16 @@ local function getBuildingName(longName)
 	return shortName
 end
 
+local function getFollowerInBuilding(building)
+	return select(5, C_Garrison.GetFollowerInfoForBuilding(building.plotID))
+end
+
 local function addFollower(building, delay)
+	-- skip if there is already a follower
+	if getFollowerInBuilding(building) then
+		return
+	end
+
 	local followers = C_Garrison.GetPossibleFollowersForBuilding(building.plotID)
 	local bestFollower = getBestFollower(followers)
 
@@ -67,7 +76,7 @@ local function addFollower(building, delay)
 end
 
 local function removeFollower(building, delay)
-	local followerID = select(5, C_Garrison.GetFollowerInfoForBuilding(building.plotID))
+	local followerID = getFollowerInBuilding(building)
 
 	if followerID then
 		local follower = C_Garrison.GetFollowerInfo(followerID)
