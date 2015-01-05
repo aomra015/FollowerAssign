@@ -56,10 +56,24 @@ local function getFollowerInBuilding(building)
 	return select(5, C_Garrison.GetFollowerInfoForBuilding(building.plotID))
 end
 
-local function addFollower(building, delay)
+local function FollowersInBuildings()
+	local buildingsWithSlot = buildingsWithFollowerSlot()
+	local numbFollowers = 0
+	for i,building in ipairs(buildingsWithSlot) do
+		local followerID = getFollowerInBuilding(building)
+		if followerID then
+			numbFollowers = numbFollowers + 1
+		end
+	end
+
+	FollowersInBuildingsCached = tostring(numbFollowers)
+	return FollowersInBuildingsCached
+end
+
+local function addFollower(building)
 	-- skip if there is already a follower
 	if getFollowerInBuilding(building) then
-		return
+		return nil
 	end
 
 	local followers = C_Garrison.GetPossibleFollowersForBuilding(building.plotID)
@@ -70,12 +84,14 @@ local function addFollower(building, delay)
 			C_Garrison.AssignFollowerToBuilding(building.plotID, bestFollower.followerID)
 			print('|cffffcc00' .. bestFollower.name .. ' added to ' .. getBuildingName(building.texPrefix)  .. '|cffffcc00')
 		end
-		
-		C_Timer.After(delay, addFollowerToBuilding)
+
+		return addFollowerToBuilding
+	else
+		return nil
 	end
 end
 
-local function removeFollower(building, delay)
+local function removeFollower(building)
 	local followerID = getFollowerInBuilding(building)
 
 	if followerID then
@@ -84,9 +100,24 @@ local function removeFollower(building, delay)
 			C_Garrison.RemoveFollowerFromBuilding(building.plotID, follower.followerID)
 			print('|cffffcc00' .. follower.name .. ' removed from  ' .. getBuildingName(building.texPrefix) .. '|cffffcc00')
 		end
-		
-		C_Timer.After(delay, removeFollowerFromBuilding)
+		return removeFollowerFromBuilding
+	else
+		return nil
 	end
+end
+
+local function runFunctions(assignmentFunctions)
+	local delay = 0
+	for i,f in ipairs(assignmentFunctions) do
+		if f ~= nil then
+			C_Timer.After(delay, f)
+			delay = delay + 0.6
+		end
+	end
+
+	C_Timer.After(delay, function()
+		print('=== All done! === ')
+	end)
 end
 
 -- Main Functions --
@@ -96,39 +127,58 @@ local function assignFollowers(assign)
 	local buildingsWithSlot = buildingsWithFollowerSlot()
 	
 	print('=== Starting to Assign Followers === ')
-	local delay = 0
+	local assignmentFunctions = {}
+
 	for i,building in ipairs(buildingsWithSlot) do
 		if assign == true then
-			addFollower(building, delay)
-			delay = delay + 0.5
+			table.insert(assignmentFunctions, addFollower(building))
 		elseif assign == false then
-			removeFollower(building, delay)
-			delay = delay + 0.5
+			table.insert(assignmentFunctions, removeFollower(building))
 		end
 	end
-
-	C_Timer.After(delay, function()
-		print('=== All done! === ')
-	end)
 	
+	runFunctions(assignmentFunctions)
+
 end
 
 local function createToggleButton()
-	local ToggleFrame = CreateFrame("CheckButton", nil, GarrisonBuildingFrame, "InterfaceOptionsCheckButtonTemplate")
-	ToggleFrame:SetChecked(FollowerAssignCheck)
-	ToggleFrame:SetSize(24, 24)
-	ToggleFrame:SetHitRectInsets(0,0,0,0)
-	ToggleFrame:SetPoint("LEFT", GarrisonBuildingFrame.BuildingList.MaterialFrame, 10, 30)
-	ToggleFrame.Text:SetText("Followers assigned to buildings")
-	ToggleFrame.Text:SetFontObject(GameFontHighlight)
-	ToggleFrame:SetScript("OnClick", function(self)
-		assignFollowers(self:GetChecked())
-	end)
+	
+	if ArchitectTabledFirstOpen then
+		ToggleFrame = CreateFrame("CheckButton", nil, GarrisonBuildingFrame, "InterfaceOptionsCheckButtonTemplate")
+		ToggleFrame:SetChecked(FollowerAssignCheck)
+		ToggleFrame:SetSize(24, 24)
+		ToggleFrame:SetHitRectInsets(0,0,0,0)
+		ToggleFrame:SetPoint("LEFT", GarrisonBuildingFrame.BuildingList.MaterialFrame, 10, 30)
+		ToggleFrame.Text:SetText("Followers assigned to buildings(" .. FollowersInBuildings() .. ")")
+		ToggleFrame.Text:SetFontObject(GameFontHighlight)
+		ToggleFrame:SetScript("OnClick", function(self)
+			assignFollowers(self:GetChecked())
+		end)
+
+		ArchitectTabledFirstOpen = false
+	end
+	
+end
+
+local function handleEvents(self, event, ...)
+	if event == "GARRISON_ARCHITECT_OPENED" then
+		createToggleButton()
+	elseif event == "GARRISON_BUILDING_UPDATE" then
+		ToggleFrame.Text:SetText("Followers assigned to buildings(" .. FollowersInBuildings() .. ")")
+	end
 end
 
 
--- Set up Main Frame
+-- Globals
+FollowersInBuildingsCached = 0
+ArchitectTabledFirstOpen = true
+if FollowerAssignCheck == nil then
+	FollowerAssignCheck = false
+end
 
-local FollowerAssignFrame = CreateFrame("Frame", "FollowerAssignFrame", GarrisonBuildingFrame)
+-- Set up Main Frame
+FollowerAssignFrame = CreateFrame("Frame", "FollowerAssignFrame", GarrisonBuildingFrame)
+ToggleFrame = nil
 FollowerAssignFrame:RegisterEvent("GARRISON_ARCHITECT_OPENED")
-FollowerAssignFrame:SetScript("OnEvent", createToggleButton)
+FollowerAssignFrame:RegisterEvent("GARRISON_BUILDING_UPDATE")
+FollowerAssignFrame:SetScript("OnEvent", handleEvents)
