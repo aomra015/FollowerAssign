@@ -1,7 +1,7 @@
 ## Interface: 60000
 ## Title: Follower Assign
 ## Notes: Quickly assign followers to buildings before picking up work orders.
-## Version: 0.0.2
+## Version: 0.0.3
 ## Author: koikoi
 ## SavedVariablesPerCharacter: FollowerAssignCheck
 
