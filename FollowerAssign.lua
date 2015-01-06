@@ -144,14 +144,14 @@ end
 local function createToggleButton()
 	
 	if ArchitectTabledFirstOpen then
-		ToggleFrame = CreateFrame("CheckButton", nil, GarrisonBuildingFrame, "InterfaceOptionsCheckButtonTemplate")
-		ToggleFrame:SetChecked(FollowerAssignCheck)
-		ToggleFrame:SetSize(24, 24)
-		ToggleFrame:SetHitRectInsets(0,0,0,0)
-		ToggleFrame:SetPoint("LEFT", GarrisonBuildingFrame.BuildingList.MaterialFrame, 10, 30)
-		ToggleFrame.Text:SetText("Followers assigned to buildings(" .. FollowersInBuildings() .. ")")
-		ToggleFrame.Text:SetFontObject(GameFontHighlight)
-		ToggleFrame:SetScript("OnClick", function(self)
+		FollowerAssignToggleFrame = CreateFrame("CheckButton", nil, GarrisonBuildingFrame, "InterfaceOptionsCheckButtonTemplate")
+		FollowerAssignToggleFrame:SetChecked(FollowerAssignCheck)
+		FollowerAssignToggleFrame:SetSize(24, 24)
+		FollowerAssignToggleFrame:SetHitRectInsets(0,0,0,0)
+		FollowerAssignToggleFrame:SetPoint("LEFT", GarrisonBuildingFrame.BuildingList.MaterialFrame, 10, 30)
+		FollowerAssignToggleFrame.Text:SetText("Followers assigned to buildings(" .. FollowersInBuildings() .. ")")
+		FollowerAssignToggleFrame.Text:SetFontObject(GameFontHighlight)
+		FollowerAssignToggleFrame:SetScript("OnClick", function(self)
 			assignFollowers(self:GetChecked())
 		end)
 
@@ -164,7 +164,7 @@ local function handleEvents(self, event, ...)
 	if event == "GARRISON_ARCHITECT_OPENED" then
 		createToggleButton()
 	elseif event == "GARRISON_BUILDING_UPDATE" then
-		ToggleFrame.Text:SetText("Followers assigned to buildings(" .. FollowersInBuildings() .. ")")
+		FollowerAssignToggleFrame.Text:SetText("Followers assigned to buildings(" .. FollowersInBuildings() .. ")")
 	end
 end
 
@@ -178,7 +178,7 @@ end
 
 -- Set up Main Frame
 FollowerAssignFrame = CreateFrame("Frame", "FollowerAssignFrame", GarrisonBuildingFrame)
-ToggleFrame = nil
+FollowerAssignToggleFrame = nil
 FollowerAssignFrame:RegisterEvent("GARRISON_ARCHITECT_OPENED")
 FollowerAssignFrame:RegisterEvent("GARRISON_BUILDING_UPDATE")
 FollowerAssignFrame:SetScript("OnEvent", handleEvents)
