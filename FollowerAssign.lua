@@ -164,7 +164,9 @@ local function handleEvents(self, event, ...)
 	if event == "GARRISON_ARCHITECT_OPENED" then
 		createToggleButton()
 	elseif event == "GARRISON_BUILDING_UPDATE" then
-		FollowerAssignToggleFrame.Text:SetText(FollowersInBuildingsMessage())
+		if FollowerAssignToggleFrame ~= nil then
+			FollowerAssignToggleFrame.Text:SetText(FollowersInBuildingsMessage())
+		end
 	end
 end
 
